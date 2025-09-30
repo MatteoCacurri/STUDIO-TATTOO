@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 type Booking = {
   id: number;
@@ -11,20 +11,46 @@ type Booking = {
   status: "Nuovo" | "Confermato" | "Fatto";
 };
 
-// Dati fittizi iniziali (sostituisci con fetch alla tua API)
-const SEED: Booking[] = [
-  { id: 1, name: "Mario Rossi",    email: "mario@example.com",  datetime: "2025-10-12T15:00:00Z", tattoo: "Drago",   status: "Nuovo" },
-  { id: 2, name: "Giulia Bianchi", email: "giulia@example.com", datetime: "2025-10-18T10:30:00Z", tattoo: "Rosa",    status: "Confermato" },
-  { id: 3, name: "Luca Verdi",     email: "luca@example.com",   datetime: "2025-11-02T17:15:00Z", tattoo: "Scritta", status: "Fatto" },
-];
+function formatDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString();
+  } catch {
+    return iso;
+  }
+}
+
+function badge(s: Booking["status"]) {
+  const map = {
+    Nuovo: "badge-info",
+    Confermato: "badge-success",
+    Fatto: "badge-neutral",
+  } as const;
+  return <span className={`badge ${map[s]} badge-sm`}>{s}</span>;
+}
 
 export default function AdminPage() {
-  const [bookings, setBookings] = useState<Booking[]>(SEED);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [q, setQ] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [toDelete, setToDelete] = useState<Booking | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/bookings", { cache: "no-store" });
+        if (!res.ok) throw new Error("GET /api/bookings failed");
+        const rows = await res.json();
+        if (alive) setBookings(rows);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const data = useMemo(() => {
     return bookings.filter((b) => {
@@ -33,12 +59,10 @@ export default function AdminPage() {
         b.name.toLowerCase().includes(q.toLowerCase()) ||
         b.email.toLowerCase().includes(q.toLowerCase()) ||
         b.tattoo.toLowerCase().includes(q.toLowerCase());
-
-      const t = new Date(b.datetime).getTime();
-      const f = from ? new Date(from).getTime() : -Infinity;
-      const tt = to ? new Date(to).getTime() + 24 * 60 * 60 * 1000 - 1 : Infinity;
-
-      return qok && t >= f && t <= tt;
+      const dok =
+        (!from || new Date(b.datetime) >= new Date(from)) &&
+        (!to || new Date(b.datetime) <= new Date(to));
+      return qok && dok;
     });
   }, [bookings, q, from, to]);
 
@@ -52,145 +76,115 @@ export default function AdminPage() {
     setToDelete(null);
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!toDelete) return;
-    // TODO: qui chiamerai la tua API DELETE /api/bookings/:id
-    setBookings((prev) => prev.filter((x) => x.id !== toDelete.id));
-    closeDeleteModal();
-    setToast("Prenotazione cancellata");
-    setTimeout(() => setToast(null), 2000);
+    try {
+      const res = await fetch(`/api/bookings/${toDelete.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("DELETE failed");
+      setBookings((prev) => prev.filter((x) => x.id !== toDelete.id));
+      closeDeleteModal();
+      setToast("Prenotazione cancellata");
+      setTimeout(() => setToast(null), 2000);
+    } catch (e) {
+      console.error(e);
+      setToast("Errore cancellazione");
+      setTimeout(() => setToast(null), 2000);
+    }
   }
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-10 md:py-14">
       <div className="mb-6">
-        <h1 className="font-display text-3xl">Admin prenotazioni</h1>
-        <p className="text-base-content/70">Filtra, consulta e gestisci.</p>
+        <h1 className="text-2xl font-bold">Gestione prenotazioni</h1>
+        <p className="text-base-content/60">Filtra, aggiorna status, cancella.</p>
       </div>
 
-      {/* Toolbar filtri */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input
+          className="input input-bordered bg-base-100/70"
+          placeholder="Cerca (nome, email, tatuaggio)"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cerca nome, email o tatuaggio..."
-          className="input input-bordered bg-base-100/70 w-full sm:w-80"
         />
-        <input value={from} onChange={(e) => setFrom(e.target.value)} type="date" className="input input-bordered bg-base-100/70 w-44" />
-        <input value={to} onChange={(e) => setTo(e.target.value)} type="date" className="input input-bordered bg-base-100/70 w-44" />
-        <div className="ml-auto flex gap-2">
-          <button type="button" onClick={() => { setQ(""); setFrom(""); setTo(""); }} className="btn btn-ghost">Reset</button>
-          <button type="button" className="btn btn-primary">+ Nuova prenotazione</button>
-        </div>
+        <input
+          type="date"
+          className="input input-bordered bg-base-100/70"
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+        />
+        <input
+          type="date"
+          className="input input-bordered bg-base-100/70"
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+        />
       </div>
 
-      {/* Tabella */}
-      <div className="card glass overflow-x-auto">
-        <div className="card-body p-0">
-          <table className="table table-zebra">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>Email</th>
-                <th>Data</th>
-                <th>Tatuaggio</th>
-                <th className="text-right">Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center text-base-content/60 py-10">
-                    Nessuna prenotazione.
-                  </td>
-                </tr>
-              )}
-
-              {data.map((b, i) => (
-                <tr key={b.id}>
-                  <td>{i + 1}</td>
-                  <td>
-                    <div className="font-medium">{b.name}</div>
-                    <div className="text-xs text-base-content/60">{badge(b.status)}</div>
-                  </td>
-                  <td>{b.email}</td>
-                  <td>{formatDate(b.datetime)}</td>
-                  <td>
-                    <span className="badge badge-outline border-primary/40 text-primary">{b.tattoo}</span>
-                  </td>
-                  <td className="text-right space-x-2">
-                    <button type="button" className="btn btn-xs btn-outline">Modifica</button>
-                    <button
-                      type="button"
-                      onClick={() => openDeleteModal(b)}
-                      className="btn btn-xs btn-error"
-                    >
+      <div className="overflow-x-auto rounded-2xl border">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Cliente</th>
+              <th>Email</th>
+              <th>Data/Ora</th>
+              <th>Tatuaggio</th>
+              <th>Status</th>
+              <th className="text-right">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((b) => (
+              <tr key={b.id}>
+                <td>{b.id}</td>
+                <td>{b.name}</td>
+                <td className="truncate max-w-[16ch]">{b.email}</td>
+                <td>{formatDate(b.datetime)}</td>
+                <td className="truncate max-w-[24ch]">{b.tattoo}</td>
+                <td>{badge(b.status)}</td>
+                <td>
+                  <div className="flex justify-end gap-2">
+                    <button className="btn btn-sm" onClick={() => openDeleteModal(b)}>
                       Cancella
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {data.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center py-10 text-base-content/60">
+                  Nessuna prenotazione trovata.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* Modale conferma cancellazione */}
+      {/* Modal cancellazione */}
       <dialog id="delete_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Confermi la cancellazione?</h3>
-          <p className="py-2 text-base-content/70">
-            {toDelete ? (
-              <>Stai per cancellare la prenotazione di <b>{toDelete.name}</b> (“{toDelete.tattoo}”).</>
-            ) : (
-              "Stai per cancellare una prenotazione."
-            )}
+          <p className="py-4">
+            Stai per cancellare la prenotazione #{toDelete?.id} di <b>{toDelete?.name}</b>.
           </p>
           <div className="modal-action">
-            <form method="dialog" className="space-x-2">
-              <button type="button" onClick={closeDeleteModal} className="btn">Annulla</button>
-              <button type="button" onClick={confirmDelete} className="btn btn-error">Cancella</button>
+            <form method="dialog" className="flex gap-2">
+              <button className="btn" onClick={closeDeleteModal}>Annulla</button>
+              <button className="btn btn-error" onClick={confirmDelete}>Cancella</button>
             </form>
           </div>
         </div>
-        <form method="dialog" className="modal-backdrop">
-          <button aria-label="Chiudi" />
-        </form>
       </dialog>
 
-      {/* Toast */}
       {toast && (
         <div className="toast toast-end">
-          <div className="alert alert-success">
+          <div className="alert alert-info">
             <span>{toast}</span>
           </div>
         </div>
       )}
     </div>
   );
-}
-
-function formatDate(iso: string) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString("it-IT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
-
-function badge(s: Booking["status"]) {
-  const map = {
-    Nuovo: "badge-info",
-    Confermato: "badge-success",
-    Fatto: "badge-neutral",
-  } as const;
-  return <span className={`badge ${map[s]} badge-sm`}>{s}</span>;
 }
