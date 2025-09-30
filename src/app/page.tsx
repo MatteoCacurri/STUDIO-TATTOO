@@ -1,83 +1,52 @@
-"use client";
+import Link from "next/link";
 
-import { useState } from "react";
-
-export default function BookPage() {
-  const [sending, setSending] = useState(false);
-  const [ok, setOk] = useState<null | "ok" | "err">(null);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSending(true);
-    setOk(null);
-
-    const form = e.currentTarget;
-    const data = new FormData(form);
-
-    const name = String(data.get("name") || "");
-    const email = String(data.get("email") || "");
-    const datetime = String(data.get("datetime") || "");
-    const description = String(data.get("description") || "");
-
-    try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          datetime,            // l’API converte in Date
-          tattoo: description, // mapping: description -> tattoo (schema Prisma)
-          status: "Nuovo",
-        }),
-      });
-      if (!res.ok) throw new Error("POST /api/bookings failed");
-      setOk("ok");
-      form.reset();
-    } catch (err) {
-      console.error(err);
-      setOk("err");
-    } finally {
-      setSending(false);
-    }
-  }
-
+export default function Home() {
   return (
-    <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14">
-      <h1 className="text-2xl font-bold mb-6">Prenota il tuo tatuaggio</h1>
-
-      <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="form-control">
-          <label className="label"><span className="label-text">Nome e cognome</span></label>
-          <input required name="name" placeholder="Mario Rossi" className="input input-bordered bg-base-100/70" />
+    <div className="container mx-auto max-w-6xl px-4">
+      {/* HERO */}
+      <section className="py-20 md:py-28">
+        <div className="text-center">
+          <h1 className="font-display text-5xl md:text-7xl font-extrabold leading-[1.05]">
+            Prenota il tuo prossimo <span className="text-primary">tatuaggio</span>
+          </h1>
+          <p className="mt-5 text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto">
+            Richieste rapide, gestione prenotazioni e pannello admin. Semplice, moderno, fatto per studi professionali.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <Link href="/book" className="btn btn-primary btn-lg hover-float">Prenota ora</Link>
+            <Link href="/admin" className="btn btn-outline btn-lg border-white/20 hover:border-white/40 hover-float">Vai all’admin</Link>
+          </div>
         </div>
 
-        <div className="form-control">
-          <label className="label"><span className="label-text">Email</span></label>
-          <input required type="email" name="email" placeholder="mario@example.com" className="input input-bordered bg-base-100/70" />
+        {/* Highlights */}
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            { title: "Calendario smart", desc: "Organizza richieste e date in un attimo." },
+            { title: "Design accattivante", desc: "Esperienza scura, colori audaci e dettagli glass." },
+            { title: "Admin potente", desc: "Filtri, stati, azioni rapide e ricerca." },
+          ].map((f, i) => (
+            <div key={i} className="card glass hover-float">
+              <div className="card-body">
+                <h3 className="card-title">{f.title}</h3>
+                <p className="text-base-content/70">{f.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        <div className="form-control">
-          <label className="label"><span className="label-text">Data e ora</span></label>
-          <input required type="datetime-local" name="datetime" className="input input-bordered bg-base-100/70" />
+      {/* CTA finale */}
+      <section className="my-16">
+        <div className="card glass">
+          <div className="card-body items-center text-center">
+            <h2 className="font-display text-3xl md:text-4xl">Pronto a lasciare il segno?</h2>
+            <p className="text-base-content/70 mt-2 max-w-2xl">Bastano pochi secondi per inviare una proposta: data, dimensione e stile. Ti ricontattiamo noi.</p>
+            <div className="card-actions mt-6">
+              <Link href="/book" className="btn btn-primary btn-wide hover-float">Inizia ora</Link>
+            </div>
+          </div>
         </div>
-
-        <div className="form-control sm:col-span-2">
-          <label className="label"><span className="label-text">Descrizione</span></label>
-          <textarea required name="description" placeholder="Descrivi il tatuaggio che vuoi fare" className="textarea textarea-bordered bg-base-100/70 h-28" />
-          <label className="label"><span className="label-text-alt text-content/60">Indicaci zona del corpo e dimensioni (cm).</span></label>
-        </div>
-
-        <div className="sm:col-span-2 flex justify-end gap-3">
-          <button type="reset" className="btn btn-ghost">Reset</button>
-          <button type="submit" disabled={sending} className="btn btn-primary">
-            {sending ? "Invio..." : "Invia prenotazione"}
-          </button>
-        </div>
-      </form>
-
-      {ok === "ok" && <div className="alert alert-success mt-6">Richiesta inviata! Ti ricontatteremo a breve.</div>}
-      {ok === "err" && <div className="alert alert-error mt-6">Errore durante l’invio. Riprova.</div>}
-    </main>
+      </section>
+    </div>
   );
 }
