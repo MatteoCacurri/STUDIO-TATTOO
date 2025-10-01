@@ -9,6 +9,7 @@ type Artist = {
   bio?: string | null;
   avatarUrl?: string | null;
   videoUrl?: string | null;
+  backgroundUrl?: string | null;
 };
 
 type Availability = Record<string, string[]>;
@@ -24,6 +25,11 @@ const WEEKDAY_LABELS = ["L", "M", "M", "G", "V", "S", "D"];
 const ARTIST_VIDEO_MAP: Record<number, string> = {
   2: "/img/video_hero.mp4",
   3: "/img/video_hero.mp4",
+};
+
+const ARTIST_BACKGROUND_MAP: Record<number, string> = {
+  2: "/artists/cristiano.jpg",
+  3: "/artists/sdrains.jpg",
 };
 
 function pad(value: number) {
@@ -183,6 +189,12 @@ export default function BookPage() {
         ? selectedArtist.videoUrl
         : ARTIST_VIDEO_MAP[selectedArtist.id] ?? null)
     : null;
+  const selectedArtistBackground = selectedArtist
+    ? (selectedArtist.backgroundUrl && selectedArtist.backgroundUrl.trim()
+        ? selectedArtist.backgroundUrl
+        : ARTIST_BACKGROUND_MAP[selectedArtist.id] ?? null)
+    : null;
+  const backgroundSrc = selectedArtistBackground ?? "/img/sfondo_prenotazione.jpg";
 
   function handleArtistSelect(id: number) {
     setArtistId(id);
@@ -302,7 +314,18 @@ export default function BookPage() {
   );
 
   return (
-    <main className="container mx-auto max-w-4xl px-4 py-12">
+    <div className="relative isolate overflow-hidden">
+      <Image
+        key={backgroundSrc}
+        src={backgroundSrc}
+        alt="Sfondo prenotazione"
+        fill
+        priority
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 -z-10 bg-black/70" aria-hidden="true" />
+
+      <main className="relative z-10 container mx-auto max-w-4xl px-4 py-12">
       <header className="text-center">
         <h1 className="text-3xl md:text-4xl font-bold">Prenota il tuo tatuaggio</h1>
         <p className="mt-3 text-base-content/70">
@@ -575,6 +598,7 @@ export default function BookPage() {
           )}
         </section>
       )}
-    </main>
+      </main>
+    </div>
   );
 }
