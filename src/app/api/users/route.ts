@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
@@ -13,8 +14,9 @@ export async function GET(req: Request) {
 
     const users = await prisma.user.findMany({ orderBy: { id: "desc" } });
     return NextResponse.json(users);
-  } catch (e) {
-    console.error(e);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(message);
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
   }
 }
@@ -33,9 +35,10 @@ export async function POST(req: Request) {
       data: { name, email },
     });
     return NextResponse.json(user, { status: 201 });
-  } catch (e: any) {
-    console.error(e);
-    if (e.code === "P2002") {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(message);
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return NextResponse.json({ error: "Email already exists" }, { status: 409 });
     }
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 });

@@ -1,20 +1,66 @@
+import Image from "next/image";
 import Link from "next/link";
 import Carousel from "./Carousel";
-export type Artist = { id: number; name: string; bio?: string | null; avatarUrl?: string | null; };
+
+export type Artist = {
+  id: number;
+  name: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
+};
+
+type WorkItem = {
+  id: number | string;
+  mediaUrl: string;
+  title?: string | null;
+};
+
+async function fetchWorks(artistId: number) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/works?artistId=${artistId}&take=8`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return [] as WorkItem[];
+    return (await res.json()) as WorkItem[];
+  } catch {
+    return [] as WorkItem[];
+  }
+}
+
 export default async function ArtistCard({ artist }: { artist: Artist }) {
-  const works = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/works?artistId=${artist.id}&take=8`, { cache: "no-store" }).then(r => r.json()).catch(() => [] as { id: number; mediaUrl: string; title?: string | null }[]);
+  const works = await fetchWorks(artist.id);
+  const avatar = artist.avatarUrl && artist.avatarUrl.trim() ? artist.avatarUrl : "/img/artist-placeholder.svg";
+
   return (
-    <section className="grid md:grid-cols-[280px,1fr] gap-6 p-6 rounded-3xl border bg-white/50 backdrop-blur-sm shadow-sm">
-      <div className="flex flex-col items-center text-center">
-        <div className="w-44 h-44 rounded-full overflow-hidden shadow-md">
-          <img src={artist.avatarUrl ?? "/placeholder-avatar.jpg"} alt={artist.name} className="w-full h-full object-cover" />
+    <section className="grid items-center gap-8 rounded-3xl border border-white/10 bg-base-100/40 p-6 backdrop-blur-md md:grid-cols-[300px,1fr]">
+      <div className="flex flex-col items-center text-center gap-4">
+        <div className="relative h-[220px] w-[220px] overflow-hidden rounded-[48px] border border-white/20 shadow-lg">
+          <Image
+            src={avatar}
+            alt={artist.name}
+            fill
+            className="object-cover object-center"
+            sizes="220px"
+          />
         </div>
-        <h3 className="mt-4 text-2xl font-semibold">{artist.name}</h3>
-        {artist.bio && <p className="text-sm text-muted-foreground mt-2">{artist.bio}</p>}
-        <Link href={`/book?artistId=${artist.id}`} className="btn btn-primary mt-4">Prenota con {artist.name}</Link>
+        <div>
+          <h3 className="text-2xl font-semibold uppercase tracking-wide">{artist.name}</h3>
+          {artist.bio && <p className="mt-2 text-sm text-base-content/70">{artist.bio}</p>}
+        </div>
+        <Link href={`/book?artistId=${artist.id}`} className="btn btn-secondary btn-wide">
+          Prenota con {artist.name}
+        </Link>
       </div>
-      <div className="min-h-[240px]">
-        <Carousel items={works} />
+
+      <div className="relative min-h-[260px]">
+        {works.length ? (
+          <Carousel items={works} />
+        ) : (
+          <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/20 bg-base-200/40 p-6 text-sm text-base-content/60">
+            Portfolio in aggiornamento.
+          </div>
+        )}
       </div>
     </section>
   );

@@ -17,7 +17,7 @@ export async function getAvailabilityByDay(artistId: number, year: number, month
 
   const bookedISO = new Set(bookings.map(b => b.datetime.toISOString()));
   const days: Record<string, string[]> = {};
-  for (let d = new Date(first); d < next; d.setUTCDate(d.getUTCDate() + 1) ) {
+  for (let d = new Date(first); d < next; d.setUTCDate(d.getUTCDate() + 1)) {
     const dow = d.getUTCDay();
     if (!WORKING_DAYS.has(dow)) continue;
 
@@ -27,8 +27,10 @@ export async function getAvailabilityByDay(artistId: number, year: number, month
     const key = `${y}-${m}-${day}`;
 
     const slots: string[] = [];
-    for (let h = START_HOUR; h < END_HOUR; h++) {
-      const slot = new Date(Date.UTC(y, d.getUTCMonth(), d.getUTCDate(), h, 0, 0));
+    for (let minutes = START_HOUR * 60; minutes < END_HOUR * 60; minutes += SLOT_MINUTES) {
+      const hour = Math.floor(minutes / 60);
+      const minute = minutes % 60;
+      const slot = new Date(Date.UTC(y, d.getUTCMonth(), d.getUTCDate(), hour, minute, 0));
       const iso = slot.toISOString();
       if (!bookedISO.has(iso)) slots.push(iso);
     }
@@ -36,4 +38,3 @@ export async function getAvailabilityByDay(artistId: number, year: number, month
   }
   return days;
 }
-

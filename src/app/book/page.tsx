@@ -8,6 +8,7 @@ type Artist = {
   name: string;
   bio?: string | null;
   avatarUrl?: string | null;
+  videoUrl?: string | null;
 };
 
 type Availability = Record<string, string[]>;
@@ -19,6 +20,11 @@ type CalendarCell = {
 };
 
 const WEEKDAY_LABELS = ["L", "M", "M", "G", "V", "S", "D"];
+
+const ARTIST_VIDEO_MAP: Record<number, string> = {
+  2: "/img/video_hero.mp4",
+  3: "/img/video_hero.mp4",
+};
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -172,6 +178,11 @@ export default function BookPage() {
   );
 
   const selectedArtist = artistId ? artists.find((a) => a.id === artistId) ?? null : null;
+  const selectedArtistVideo = selectedArtist
+    ? (selectedArtist.videoUrl && selectedArtist.videoUrl.trim()
+        ? selectedArtist.videoUrl
+        : ARTIST_VIDEO_MAP[selectedArtist.id] ?? null)
+    : null;
 
   function handleArtistSelect(id: number) {
     setArtistId(id);
@@ -267,13 +278,13 @@ export default function BookPage() {
             }`}
             aria-pressed={isActive}
           >
-            <div className="relative aspect-video overflow-hidden">
+            <div className="relative aspect-[3/4] overflow-hidden">
               <Image
                 src={avatar}
                 alt={artist.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover object-top"
+                sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 320px"
                 priority={artists.length <= 2}
               />
             </div>
@@ -319,10 +330,25 @@ export default function BookPage() {
 
       {artistId && selectedArtist && (
         <section className="mt-12 space-y-8">
-          <div className="card glass border border-white/10">
-            <div className="card-body gap-4 md:flex md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-white/20">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl">
+            {selectedArtistVideo ? (
+              <video
+                key={selectedArtistVideo}
+                className="absolute inset-0 h-full w-full object-cover"
+                src={selectedArtistVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-r from-base-300 via-base-200 to-base-300" aria-hidden="true" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/20" aria-hidden="true" />
+
+            <div className="relative flex flex-col gap-5 p-6 text-white md:flex-row md:items-center md:justify-between md:gap-8 md:p-8">
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-white/30 shadow-lg md:h-20 md:w-20">
                   <Image
                     src={
                       selectedArtist.avatarUrl && selectedArtist.avatarUrl.trim()
@@ -330,21 +356,21 @@ export default function BookPage() {
                         : "/img/artist-placeholder.svg"
                     }
                     alt={selectedArtist.name}
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <div>
-                  <p className="text-sm uppercase tracking-wide text-base-content/60">Hai scelto</p>
-                  <h3 className="text-xl font-semibold">{selectedArtist.name}</h3>
-                  {selectedArtist.bio && <p className="text-sm text-base-content/60">{selectedArtist.bio}</p>}
+                  <p className="text-xs uppercase tracking-[0.4em] text-white/70">Hai scelto</p>
+                  <h3 className="text-2xl font-semibold uppercase tracking-wide text-white">{selectedArtist.name}</h3>
+                  {selectedArtist.bio && <p className="mt-1 text-sm text-white/80 max-w-lg">{selectedArtist.bio}</p>}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setArtistId(null)}
-                className="btn btn-ghost btn-sm md:btn-md"
+                className="btn btn-outline btn-sm md:btn-md border-white/60 text-white hover:border-white"
               >
                 Cambia artista
               </button>
@@ -361,7 +387,7 @@ export default function BookPage() {
                   <div className="flex items-center justify-between">
                     <button
                       type="button"
-                      className="btn btn-ghost btn-sm"
+                      className="btn btn-outline btn-sm border-white/30 text-base-content"
                       onClick={() => goToMonth(-1)}
                     >
                       ‹ Mese prec.
@@ -371,7 +397,7 @@ export default function BookPage() {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-ghost btn-sm"
+                      className="btn btn-outline btn-sm border-white/30 text-base-content"
                       onClick={() => goToMonth(1)}
                     >
                       Mese succ. ›
@@ -406,13 +432,13 @@ export default function BookPage() {
                           type="button"
                           disabled={!isAvailable || loadingAvailability}
                           onClick={() => setSelectedDate(cell.key)}
-                          className={`h-10 rounded-xl border transition hover:border-primary/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                          className={`h-10 rounded-xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                             isSelected
-                              ? "border-primary bg-primary/10 text-primary"
+                              ? "border-primary bg-primary/20 text-primary-foreground shadow-lg"
                               : isAvailable
-                              ? "border-white/20 text-base-content"
-                              : "border-white/10 text-base-content/40"
-                          } ${isToday && !isSelected ? "ring-1 ring-white/30" : ""}`}
+                              ? "border-white/30 bg-white/5 text-base-content hover:border-primary/50 hover:bg-primary/10"
+                              : "border-white/10 bg-white/0 text-base-content/40"
+                          } ${isToday && !isSelected ? "ring-1 ring-white/40" : ""}`}
                         >
                           {cell.label}
                         </button>
@@ -445,7 +471,7 @@ export default function BookPage() {
                     </label>
                     <input
                       type="time"
-                      className="input input-bordered bg-base-100/70"
+                      className="input input-bordered bg-base-100 text-base-content shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                       value={selectedTime}
                       onChange={(event) => setSelectedTime(event.target.value)}
                       required
@@ -516,7 +542,7 @@ export default function BookPage() {
               <div className="md:col-span-2 flex flex-col gap-3 md:flex-row md:justify-end">
                 <button
                   type="button"
-                  className="btn btn-ghost"
+                  className="btn btn-outline btn-secondary"
                   onClick={() => {
                     setSelectedDate(null);
                     setSelectedTime("");
@@ -526,7 +552,11 @@ export default function BookPage() {
                 >
                   Reset
                 </button>
-                <button type="submit" disabled={sending} className="btn btn-primary">
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="btn btn-primary btn-wide md:btn-lg shadow-lg shadow-primary/30"
+                >
                   {sending ? "Invio..." : "Invia la richiesta"}
                 </button>
               </div>

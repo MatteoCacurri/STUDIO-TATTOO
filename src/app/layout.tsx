@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="navbar sticky top-0 z-30 bg-base-100/70 backdrop-blur border-b border-white/10">
           <div className="navbar-start">
             <Link href="/" className="btn btn-ghost px-2 text-xl font-display">
-              <span className="text-primary">Studio</span>&nbsp;Tattoo
+              <span className="text-primary">C4os</span>&nbsp;Studio
             </Link>
           </div>
           <div className="navbar-center hidden md:flex">
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-white/10 mt-16">
           <div className="container mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/70">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-              <div>© {new Date().getFullYear()} <span className="font-medium">Studio Tattoo</span></div>
+              <div>© {new Date().getFullYear()} <span className="font-medium">C4os Studio</span></div>
               <div className="flex gap-4">
                 <Link href="/book" className="link link-hover">Prenota</Link>
                 <Link href="/admin" className="link link-hover">Admin</Link>
