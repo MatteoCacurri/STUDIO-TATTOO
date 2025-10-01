@@ -1,14 +1,21 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 
 type Booking = {
   id: number;
+  artistId: number;
   name: string;
   email: string;
   datetime: string; // ISO
   tattoo: string;
   status: "Nuovo" | "Confermato" | "Fatto";
+  artist: {
+    id: number;
+    name: string;
+    avatarUrl: string | null;
+  } | null;
 };
 
 function formatDate(iso: string) {
@@ -34,6 +41,7 @@ export default function AdminPage() {
   const [q, setQ] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [artistFilter, setArtistFilter] = useState<string>("");
   const [toDelete, setToDelete] = useState<Booking | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -58,13 +66,23 @@ export default function AdminPage() {
         !q ||
         b.name.toLowerCase().includes(q.toLowerCase()) ||
         b.email.toLowerCase().includes(q.toLowerCase()) ||
-        b.tattoo.toLowerCase().includes(q.toLowerCase());
+        b.tattoo.toLowerCase().includes(q.toLowerCase()) ||
+        (b.artist?.name?.toLowerCase().includes(q.toLowerCase()) ?? false);
       const dok =
         (!from || new Date(b.datetime) >= new Date(from)) &&
         (!to || new Date(b.datetime) <= new Date(to));
-      return qok && dok;
+      const aok = !artistFilter || String(b.artistId) === artistFilter;
+      return qok && dok && aok;
     });
-  }, [bookings, q, from, to]);
+  }, [bookings, q, from, to, artistFilter]);
+
+  const artistOptions = useMemo(() => {
+    const map = new Map<number, { id: number; name: string }>();
+    for (const b of bookings) {
+      if (b.artist) map.set(b.artist.id, { id: b.artist.id, name: b.artist.name });
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [bookings]);
 
   function openDeleteModal(b: Booking) {
     setToDelete(b);
@@ -99,7 +117,7 @@ export default function AdminPage() {
         <p className="text-base-content/60">Filtra, aggiorna status, cancella.</p>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
         <input
           className="input input-bordered bg-base-100/70"
           placeholder="Cerca (nome, email, tatuaggio)"
@@ -118,6 +136,18 @@ export default function AdminPage() {
           value={to}
           onChange={(e) => setTo(e.target.value)}
         />
+        <select
+          className="select select-bordered bg-base-100/70"
+          value={artistFilter}
+          onChange={(e) => setArtistFilter(e.target.value)}
+        >
+          <option value="">Tutti gli artisti</option>
+          {artistOptions.map((artist) => (
+            <option key={artist.id} value={artist.id}>
+              {artist.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border">
@@ -125,6 +155,7 @@ export default function AdminPage() {
           <thead>
             <tr>
               <th>#</th>
+              <th>Artista</th>
               <th>Cliente</th>
               <th>Email</th>
               <th>Data/Ora</th>
@@ -137,6 +168,23 @@ export default function AdminPage() {
             {data.map((b) => (
               <tr key={b.id}>
                 <td>{b.id}</td>
+                <td>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 overflow-hidden rounded-full border border-white/10">
+                      <Image
+                        src={b.artist?.avatarUrl ?? "/img/artist-placeholder.svg"}
+                        alt={b.artist?.name ?? "Artista"}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium">{b.artist?.name ?? "—"}</p>
+                      <p className="text-xs text-base-content/60">ID #{b.artistId}</p>
+                    </div>
+                  </div>
+                </td>
                 <td>{b.name}</td>
                 <td className="truncate max-w-[16ch]">{b.email}</td>
                 <td>{formatDate(b.datetime)}</td>
@@ -153,7 +201,7 @@ export default function AdminPage() {
             ))}
             {data.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-center py-10 text-base-content/60">
+                <td colSpan={8} className="text-center py-10 text-base-content/60">
                   Nessuna prenotazione trovata.
                 </td>
               </tr>

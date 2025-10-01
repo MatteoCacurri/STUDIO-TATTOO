@@ -1,6 +1,14 @@
 import Link from "next/link";
+import ArtistCard from "@/components/ArtistCard";
 
-export default function Home() {
+
+async function getArtists() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/artists`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export default async function Home() {
   return (
     <div className="container mx-auto max-w-6xl px-4">
       {/* HERO */}
@@ -50,3 +58,11 @@ export default function Home() {
     </div>
   );
 }
+
+{/* — Sezioni artisti — */}
+<div className="space-y-10 mt-10">
+  {(await getArtists()).map((a: any) => (
+    <ArtistCard key={a.id} artist={a} />
+  ))}
+</div>
+

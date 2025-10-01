@@ -14,12 +14,38 @@ enum BookingStatus {
 }
 
 model Booking {
-  id        Int           @id @default(autoincrement())
-  name      String
-  email     String
-  datetime  DateTime
-  tattoo    String
-  status    BookingStatus @default(Nuovo)
+  id         Int           @id @default(autoincrement())
+  artist     Artist        @relation(fields: [artistId], references: [id])
+  artistId   Int
+  name       String
+  email      String
+  datetime   DateTime
+  tattoo     String
+  status     BookingStatus @default(Nuovo)
 
   @@index([datetime])
+  @@index([artistId, datetime])
+}
+
+
+model Artist {
+  id         Int      @id @default(autoincrement())
+  name       String
+  bio        String?
+  avatarUrl  String?
+  works      Work[]
+  bookings   Booking[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Work {
+  id         Int      @id @default(autoincrement())
+  artist     Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId   Int
+  title      String?
+  mediaUrl   String
+  createdAt  DateTime @default(now())
+
+  @@index([artistId])
 }
