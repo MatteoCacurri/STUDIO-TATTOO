@@ -434,8 +434,8 @@ export default function BookPage() {
                   )}
 
                   <div className="mt-4 grid grid-cols-7 gap-2 text-center text-sm font-semibold text-base-content/70 uppercase">
-                    {WEEKDAY_LABELS.map((label) => (
-                      <span key={label}>{label}</span>
+                    {WEEKDAY_LABELS.map((label, idx) => (
+                      <span key={`${label}-${idx}`}>{label}</span>
                     ))}
                   </div>
 
