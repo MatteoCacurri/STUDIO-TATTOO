@@ -26,10 +26,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ul className="menu menu-horizontal gap-1">
               <li><Link href="/" className="hover-float">Home</Link></li>
               <li><Link href="/book" className="hover-float">Prenota</Link></li>
+              <li><Link href="/contact" className="hover-float">Contatti</Link></li>
               <li><Link href="/admin" className="hover-float">Admin</Link></li>
             </ul>
           </div>
-          <div className="navbar-end">
+          <div className="navbar-end gap-2">
+            <Link href="/contact" className="btn btn-ghost btn-sm sm:btn-md hover-float">
+              Contatti
+            </Link>
             <a href="/book" className="btn btn-primary hover-float">Prenota ora</a>
           </div>
         </div>
@@ -44,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div>© {new Date().getFullYear()} <span className="font-medium">C4os Studio</span></div>
               <div className="flex gap-4">
                 <Link href="/book" className="link link-hover">Prenota</Link>
+                <Link href="/contact" className="link link-hover">Contatti</Link>
                 <Link href="/admin" className="link link-hover">Admin</Link>
               </div>
             </div>
