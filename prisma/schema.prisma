@@ -7,45 +7,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Booking {
+  id         Int           @id @default(autoincrement())
+  tattoo     String
+  artistId   Int
+  datetime   DateTime
+  email      String
+  name       String
+  status     BookingStatus @default(Nuovo)
+  bodyImage  String?
+  phone      String?
+  references String[]      @default([])
+  skinTone   String?
+  palette    TattooPalette @default(COLORI)
+  artist     Artist        @relation(fields: [artistId], references: [id])
+
+  @@index([datetime])
+  @@index([artistId, datetime])
+}
+
+model Artist {
+  id        Int       @id @default(autoincrement())
+  name      String
+  bio       String?
+  avatarUrl String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  works     Work[]
+}
+
+model Work {
+  id        Int      @id @default(autoincrement())
+  artistId  Int
+  title     String?
+  mediaUrl  String
+  createdAt DateTime @default(now())
+  artist    Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+}
+
 enum BookingStatus {
   Nuovo
   Confermato
   Fatto
 }
 
-model Booking {
-  id         Int           @id @default(autoincrement())
-  artist     Artist        @relation(fields: [artistId], references: [id])
-  artistId   Int
-  name       String
-  email      String
-  datetime   DateTime
-  tattoo     String
-  status     BookingStatus @default(Nuovo)
-
-  @@index([datetime])
-  @@index([artistId, datetime])
-}
-
-
-model Artist {
-  id         Int      @id @default(autoincrement())
-  name       String
-  bio        String?
-  avatarUrl  String?
-  works      Work[]
-  bookings   Booking[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Work {
-  id         Int      @id @default(autoincrement())
-  artist     Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  artistId   Int
-  title      String?
-  mediaUrl   String
-  createdAt  DateTime @default(now())
-
-  @@index([artistId])
+enum TattooPalette {
+  BIANCO_NERO
+  COLORI
 }

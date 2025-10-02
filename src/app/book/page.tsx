@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 
 type Artist = {
   id: number;
@@ -31,6 +31,52 @@ const ARTIST_BACKGROUND_MAP: Record<number, string> = {
   2: "/artists/cristiano.jpg",
   3: "/artists/sdrains.jpg",
 };
+
+const SKIN_TONES = [
+  {
+    value: "porcelain",
+    label: "Chiara",
+    description: "Pelle molto chiara o neutra",
+    swatch: "from-[#fbe7d4] to-[#f2cba6]",
+  },
+  {
+    value: "light",
+    label: "Media chiara",
+    description: "Tono leggermente dorato",
+    swatch: "from-[#f1c59b] to-[#d39f72]",
+  },
+  {
+    value: "medium",
+    label: "Media",
+    description: "Olivastra o abbronzata",
+    swatch: "from-[#c48c5a] to-[#a56a3b]",
+  },
+  {
+    value: "deep",
+    label: "Scura",
+    description: "Tono profondo e intenso",
+    swatch: "from-[#8b5a2b] to-[#5a3613]",
+  },
+];
+
+const DEFAULT_SKIN_TONE = SKIN_TONES[2]?.value ?? SKIN_TONES[0]?.value ?? "";
+
+const PALETTE_OPTIONS = [
+  {
+    value: "COLORI",
+    label: "Colori",
+    description: "Palette vivace con sfumature e saturazioni complesse.",
+    accent: "from-[#ff6f61] via-[#ff914d] to-[#ffd966]",
+  },
+  {
+    value: "BIANCO_NERO",
+    label: "Bianco e nero",
+    description: "Contrasti netti e giochi di luce in scala di grigi.",
+    accent: "from-[#f8fafc] via-[#cbd5f5] to-[#1f2937]",
+  },
+];
+
+const DEFAULT_PALETTE = PALETTE_OPTIONS[0]?.value ?? "COLORI";
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -93,6 +139,10 @@ export default function BookPage() {
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState("");
+  const [skinTone, setSkinTone] = useState(DEFAULT_SKIN_TONE);
+  const [palette, setPalette] = useState(DEFAULT_PALETTE);
+  const [bodyPreview, setBodyPreview] = useState<string | null>(null);
+  const [referencePreviews, setReferencePreviews] = useState<Array<{ url: string; name: string }>>([]);
 
   const todayKey = useMemo(() => {
     const t = new Date();
@@ -178,6 +228,18 @@ export default function BookPage() {
     }
   }, [selectedDate, availableDateKeys]);
 
+  useEffect(() => {
+    return () => {
+      if (bodyPreview) URL.revokeObjectURL(bodyPreview);
+    };
+  }, [bodyPreview]);
+
+  useEffect(() => {
+    return () => {
+      referencePreviews.forEach((entry) => URL.revokeObjectURL(entry.url));
+    };
+  }, [referencePreviews]);
+
   const calendarCells = useMemo(
     () => buildCalendar(yearMonth.year, yearMonth.month),
     [yearMonth.year, yearMonth.month]
@@ -213,6 +275,39 @@ export default function BookPage() {
     });
   }
 
+  function handleBodyImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    setBodyPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return file ? URL.createObjectURL(file) : null;
+    });
+  }
+
+  function handleReferenceImagesChange(event: ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files ? Array.from(event.target.files).slice(0, 5) : [];
+    setReferencePreviews((prev) => {
+      prev.forEach((entry) => URL.revokeObjectURL(entry.url));
+      return files.map((file) => ({ url: URL.createObjectURL(file), name: file.name }));
+    });
+  }
+
+  function handleReset() {
+    setSelectedDate(null);
+    setSelectedTime("");
+    setSkinTone(DEFAULT_SKIN_TONE);
+    setPalette(DEFAULT_PALETTE);
+    setFormError(null);
+    setOk(null);
+    setBodyPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setReferencePreviews((prev) => {
+      prev.forEach((entry) => URL.revokeObjectURL(entry.url));
+      return [];
+    });
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -236,40 +331,71 @@ export default function BookPage() {
       return;
     }
 
+    const form = e.currentTarget;
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     setSending(true);
     setOk(null);
     setFormError(null);
 
-    const form = e.currentTarget;
-    const data = new FormData(form);
+    const formData = new FormData(form);
+    const trimmedName = String(formData.get("name") ?? "").trim();
+    const trimmedEmail = String(formData.get("email") ?? "").trim();
+    const trimmedPhone = String(formData.get("phone") ?? "").trim();
+    const tattooDescription = String(formData.get("tattoo") ?? "").trim();
+    const selectedTone = formData.get("skinTone");
+    const selectedPalette = formData.get("palette");
 
-    const name = String(data.get("name") || "");
-    const email = String(data.get("email") || "");
-    const description = String(data.get("description") || "");
+    if (!selectedTone) {
+      setSending(false);
+      setFormError("Seleziona il tuo tono di pelle.");
+      return;
+    }
+
+    if (!selectedPalette) {
+      setSending(false);
+      setFormError("Scegli se preferisci un progetto a colori o in bianco e nero.");
+      return;
+    }
+
+    formData.set("artistId", String(artistId));
+    formData.set("datetime", when.toISOString());
+    formData.set("name", trimmedName);
+    formData.set("email", trimmedEmail);
+    formData.set("phone", trimmedPhone);
+    formData.set("tattoo", tattooDescription);
+    formData.set("palette", String(selectedPalette));
 
     try {
       const res = await fetch("/api/bookings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          artistId,
-          name,
-          email,
-          datetime: when.toISOString(),
-          tattoo: description,
-          status: "Nuovo",
-        }),
+        body: formData,
       });
 
       if (!res.ok) throw new Error("POST /api/bookings failed");
 
       setOk("ok");
       form.reset();
+      setSkinTone(DEFAULT_SKIN_TONE);
+      setPalette(DEFAULT_PALETTE);
       setSelectedDate(null);
       setSelectedTime("");
+      setBodyPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setReferencePreviews((prev) => {
+        prev.forEach((entry) => URL.revokeObjectURL(entry.url));
+        return [];
+      });
     } catch (err) {
       console.error(err);
       setOk("err");
+      setFormError("Impossibile inviare la richiesta. Riprova tra qualche minuto.");
     } finally {
       setSending(false);
     }
@@ -348,6 +474,15 @@ export default function BookPage() {
             1 · Scegli il tuo tatuatore
           </h2>
           {artistCards}
+        </section>
+      )}
+
+      {!loadingArtists && !artistError && artists.length === 0 && (
+        <section className="mt-10 rounded-3xl border border-dashed border-white/15 bg-base-100/40 p-8 text-center">
+          <h2 className="text-xl font-semibold text-base-content">Nessun artista disponibile al momento</h2>
+          <p className="mt-3 text-sm text-base-content/70">
+            Aggiungi un artista dal pannello admin per riattivare le prenotazioni oppure riprova più tardi.
+          </p>
         </section>
       )}
 
@@ -510,7 +645,7 @@ export default function BookPage() {
             </div>
           </div>
 
-          <form onSubmit={onSubmit} className="card glass border border-white/10">
+          <form onSubmit={onSubmit} onReset={handleReset} className="card glass border border-white/10">
             <div className="card-body grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="form-control md:col-span-2">
                 <label className="label">
@@ -537,13 +672,127 @@ export default function BookPage() {
                 />
               </div>
 
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Telefono</span>
+                </label>
+                <input
+                  required
+                  type="tel"
+                  name="phone"
+                  inputMode="tel"
+                  pattern="^[0-9+\\s().-]{6,}$"
+                  placeholder="+39 333 1234567"
+                  className="input input-bordered bg-base-100/70"
+                />
+                <label className="label">
+                  <span className="label-text-alt text-base-content/60">Usiamo il numero solo per confermare o chiarire dettagli sul tatuaggio.</span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium uppercase tracking-wide text-base-content/70">
+                    Tono della pelle
+                  </span>
+                  <span className="text-xs text-primary">Aiutaci a valutare resa e palette</span>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {SKIN_TONES.map((tone) => {
+                    const isActive = skinTone === tone.value;
+                    return (
+                      <label
+                        key={tone.value}
+                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${
+                          isActive
+                            ? "border-primary/80 bg-primary/10 shadow-lg shadow-primary/20"
+                            : "border-white/15 bg-base-100/40 hover:border-primary/40 hover:bg-primary/5"
+                        }`}
+                      >
+                        <input
+                          className="sr-only"
+                          type="radio"
+                          name="skinTone"
+                          value={tone.value}
+                          checked={skinTone === tone.value}
+                          onChange={() => setSkinTone(tone.value)}
+                          required
+                        />
+                        <span
+                          className={`h-12 w-12 rounded-full bg-gradient-to-br ${tone.swatch} shadow-inner shadow-black/20`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <p className="font-semibold text-base-content">
+                            {tone.label}
+                          </p>
+                          <p className="text-xs text-base-content/70">{tone.description}</p>
+                        </div>
+                        {isActive && (
+                          <span className="absolute right-4 top-4 text-xs font-semibold uppercase tracking-wider text-primary">
+                            Scelto
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium uppercase tracking-wide text-base-content/70">
+                    Palette preferita
+                  </span>
+                  <span className="text-xs text-base-content/60">Così prepariamo proposte coerenti</span>
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {PALETTE_OPTIONS.map((option) => {
+                    const selected = palette === option.value;
+                    return (
+                      <label
+                        key={option.value}
+                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${
+                          selected
+                            ? "border-secondary/80 bg-secondary/10 shadow-lg shadow-secondary/20"
+                            : "border-white/15 bg-base-100/40 hover:border-secondary/40 hover:bg-secondary/5"
+                        }`}
+                      >
+                        <input
+                          className="sr-only"
+                          type="radio"
+                          name="palette"
+                          value={option.value}
+                          checked={palette === option.value}
+                          onChange={() => setPalette(option.value)}
+                          required
+                        />
+                        <span
+                          className={`h-12 w-12 rounded-full bg-gradient-to-br ${option.accent} shadow-inner shadow-black/10`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <p className="font-semibold text-base-content">{option.label}</p>
+                          <p className="text-xs text-base-content/70">{option.description}</p>
+                        </div>
+                        {selected && (
+                          <span className="absolute right-4 top-4 text-xs font-semibold uppercase tracking-wider text-secondary">
+                            Scelto
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="form-control md:col-span-2">
                 <label className="label">
                   <span className="label-text">Descrizione del tatuaggio</span>
                 </label>
                 <textarea
                   required
-                  name="description"
+                  name="tattoo"
                   placeholder="Descrivi stile, zona del corpo, dimensioni..."
                   className="textarea textarea-bordered bg-base-100/70 h-28"
                 />
@@ -552,6 +801,75 @@ export default function BookPage() {
                     Più dettagli ci dai, più veloce sarà la conferma della proposta.
                   </span>
                 </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="label">
+                  <span className="label-text">Foto della zona da tatuare</span>
+                </label>
+                <input
+                  type="file"
+                  name="bodyImage"
+                  accept="image/*"
+                  className="file-input file-input-bordered bg-base-100/70"
+                  onChange={handleBodyImageChange}
+                />
+                <p className="mt-2 text-xs text-base-content/60">
+                  Uno scatto nitido della parte del corpo ci aiuta a definire scala e adattamento del disegno.
+                </p>
+                {bodyPreview && (
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-base-100/40 p-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- preview locale di file */}
+                    <img
+                      src={bodyPreview}
+                      alt="Anteprima zona corpo"
+                      className="h-16 w-16 rounded-xl object-cover"
+                    />
+                    <span className="text-sm text-base-content/70">Anteprima caricata</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="label">
+                  <span className="label-text">Reference visive (fino a 5 immagini)</span>
+                </label>
+                <input
+                  type="file"
+                  name="referenceImages"
+                  accept="image/*"
+                  multiple
+                  className="file-input file-input-bordered bg-base-100/70"
+                  onChange={handleReferenceImagesChange}
+                />
+                <p className="mt-2 text-xs text-base-content/60">
+                  Carica schizzi, moodboard o tatuaggi di riferimento per comunicarci atmosfera e direzione stilistica.
+                </p>
+                {referencePreviews.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {referencePreviews.length} / 5 caricati
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {referencePreviews.map((preview) => (
+                        <div
+                          key={preview.url}
+                          className="flex w-[120px] flex-col items-center gap-2 rounded-2xl border border-white/10 bg-base-100/30 p-2"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- preview locale di file */}
+                          <img
+                            src={preview.url}
+                            alt={preview.name}
+                            className="h-16 w-full rounded-xl object-cover"
+                          />
+                          <p className="truncate text-xs text-base-content/70" title={preview.name}>
+                            {preview.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {formError && (
@@ -564,14 +882,8 @@ export default function BookPage() {
 
               <div className="md:col-span-2 flex flex-col gap-3 md:flex-row md:justify-end">
                 <button
-                  type="button"
+                  type="reset"
                   className="btn btn-outline btn-secondary"
-                  onClick={() => {
-                    setSelectedDate(null);
-                    setSelectedTime("");
-                    setFormError(null);
-                    setOk(null);
-                  }}
                 >
                   Reset
                 </button>

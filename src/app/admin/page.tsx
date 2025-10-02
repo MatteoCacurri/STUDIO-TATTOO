@@ -8,14 +8,31 @@ type Booking = {
   artistId: number;
   name: string;
   email: string;
+  phone: string | null;
+  skinTone: string | null;
+  palette: "BIANCO_NERO" | "COLORI";
   datetime: string; // ISO
   tattoo: string;
+  bodyImage: string | null;
+  references: string[];
   status: "Nuovo" | "Confermato" | "Fatto";
   artist: {
     id: number;
     name: string;
     avatarUrl: string | null;
   } | null;
+};
+
+const SKIN_TONE_META: Record<string, { label: string; gradient: string }> = {
+  porcelain: { label: "Chiara", gradient: "from-[#fbe7d4] to-[#f2cba6]" },
+  light: { label: "Media chiara", gradient: "from-[#f1c59b] to-[#d39f72]" },
+  medium: { label: "Media", gradient: "from-[#c48c5a] to-[#a56a3b]" },
+  deep: { label: "Scura", gradient: "from-[#8b5a2b] to-[#5a3613]" },
+};
+
+const PALETTE_LABEL: Record<Booking["palette"], string> = {
+  BIANCO_NERO: "Bianco e nero",
+  COLORI: "Colori",
 };
 
 function formatDate(iso: string) {
@@ -66,8 +83,11 @@ export default function AdminPage() {
         !q ||
         b.name.toLowerCase().includes(q.toLowerCase()) ||
         b.email.toLowerCase().includes(q.toLowerCase()) ||
+        (b.phone?.toLowerCase().includes(q.toLowerCase()) ?? false) ||
         b.tattoo.toLowerCase().includes(q.toLowerCase()) ||
-        (b.artist?.name?.toLowerCase().includes(q.toLowerCase()) ?? false);
+        (b.artist?.name?.toLowerCase().includes(q.toLowerCase()) ?? false) ||
+        (b.skinTone?.toLowerCase().includes(q.toLowerCase()) ?? false) ||
+        PALETTE_LABEL[b.palette].toLowerCase().includes(q.toLowerCase());
       const dok =
         (!from || new Date(b.datetime) >= new Date(from)) &&
         (!to || new Date(b.datetime) <= new Date(to));
@@ -157,9 +177,10 @@ export default function AdminPage() {
               <th>#</th>
               <th>Artista</th>
               <th>Cliente</th>
-              <th>Email</th>
+              <th>Contatti</th>
               <th>Data/Ora</th>
               <th>Tatuaggio</th>
+              <th>Media</th>
               <th>Status</th>
               <th className="text-right">Azioni</th>
             </tr>
@@ -185,10 +206,85 @@ export default function AdminPage() {
                     </div>
                   </div>
                 </td>
-                <td>{b.name}</td>
-                <td className="truncate max-w-[16ch]">{b.email}</td>
+                <td>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium">{b.name}</span>
+                    {(() => {
+                      const tone = SKIN_TONE_META[b.skinTone ?? ""];
+                      if (!tone) return null;
+                      return (
+                        <span className="inline-flex items-center gap-2 text-xs text-base-content/60">
+                          <span
+                            className={`h-3 w-3 rounded-full bg-gradient-to-br ${tone.gradient} shadow-inner shadow-black/30`}
+                            aria-hidden="true"
+                          />
+                          {tone.label}
+                        </span>
+                      );
+                    })()}
+                    <span className="text-[11px] uppercase tracking-wide text-primary/80">
+                      {PALETTE_LABEL[b.palette]}
+                    </span>
+                  </div>
+                </td>
+                <td className="max-w-[18ch]">
+                  <div className="flex flex-col gap-1 text-sm">
+                    <a href={`mailto:${b.email}`} className="truncate text-primary">
+                      {b.email}
+                    </a>
+                    {b.phone ? (
+                      <a href={`tel:${b.phone.replace(/\s+/g, "")}`} className="text-xs text-base-content/70">
+                        {b.phone}
+                      </a>
+                    ) : (
+                      <span className="text-xs text-base-content/50">—</span>
+                    )}
+                  </div>
+                </td>
                 <td>{formatDate(b.datetime)}</td>
                 <td className="truncate max-w-[24ch]">{b.tattoo}</td>
+                <td>
+                  <div className="flex flex-wrap gap-2">
+                    {b.bodyImage && (
+                      <a
+                        href={b.bodyImage}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="tooltip"
+                        data-tip="Zona da tatuare"
+                      >
+                        <Image
+                          src={b.bodyImage}
+                          alt="Zona da tatuare"
+                          width={56}
+                          height={56}
+                          className="h-14 w-14 rounded-xl border border-white/10 object-cover"
+                        />
+                      </a>
+                    )}
+                    {b.references?.map((ref, idx) => (
+                      <a
+                        key={ref}
+                        href={ref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="tooltip"
+                        data-tip={`Reference ${idx + 1}`}
+                      >
+                        <Image
+                          src={ref}
+                          alt={`Reference ${idx + 1}`}
+                          width={56}
+                          height={56}
+                          className="h-14 w-14 rounded-xl border border-white/10 object-cover"
+                        />
+                      </a>
+                    ))}
+                    {!b.bodyImage && (!b.references || b.references.length === 0) && (
+                      <span className="text-xs text-base-content/50">—</span>
+                    )}
+                  </div>
+                </td>
                 <td>{badge(b.status)}</td>
                 <td>
                   <div className="flex justify-end gap-2">
