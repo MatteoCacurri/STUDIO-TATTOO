@@ -90,7 +90,7 @@ const SOCIALS: Social[] = [
 ];
 
 const MAP_EMBED_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2796.018888587519!2d9.191383376521131!3d45.46409723634405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4786c6aa2c78705d%3A0xb247dc68b5f89e0e!2sDuomo%20di%20Milano!5e0!3m2!1sit!2sit!4v1710000000000!5m2!1sit!2sit";
+  "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1282.1057867496697!2d12.774098289826686!3d41.94840236962585!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sit!2sit!4v1759405104506!5m2!1sit!2sit";
 
 export default function ContactPage() {
   return (

@@ -7,6 +7,7 @@ export type Artist = {
   name: string;
   bio?: string | null;
   avatarUrl?: string | null;
+  instagramUrl?: string | null;
 };
 
 type WorkItem = {
@@ -47,6 +48,31 @@ export default async function ArtistCard({ artist }: { artist: Artist }) {
         <div>
           <h3 className="text-2xl font-semibold uppercase tracking-wide">{artist.name}</h3>
           {artist.bio && <p className="mt-2 text-sm text-base-content/70">{artist.bio}</p>}
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          {artist.instagramUrl ? (
+            <a
+              href={artist.instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-base-100/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-base-content transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+              aria-label={`Instagram di ${artist.name}`}
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-primary/40 text-primary-content transition group-hover:from-primary group-hover:to-secondary">
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+                  <path
+                    fill="currentColor"
+                    d="M7 2C4.239 2 2 4.239 2 7v10c0 2.761 2.239 5 5 5h10c2.761 0 5-2.239 5-5V7c0-2.761-2.239-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm10.5 1.5a1.5 1.5 0 00-1.06 2.56 1.5 1.5 0 002.12-2.12A1.494 1.494 0 0017.5 5.5zM12 7.5A4.5 4.5 0 107.5 12 4.505 4.505 0 0012 7.5zm0 2A2.5 2.5 0 119.5 12 2.5 2.5 0 0112 9.5z"
+                  />
+                </svg>
+              </span>
+              Instagram
+            </a>
+          ) : (
+            <span className="rounded-full border border-dashed border-white/20 px-3 py-1 text-xs uppercase tracking-wide text-base-content/50">
+              Instagram in arrivo
+            </span>
+          )}
         </div>
         <Link href={`/book?artistId=${artist.id}`} className="btn btn-secondary btn-wide">
           Prenota con {artist.name}

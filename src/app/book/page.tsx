@@ -10,6 +10,7 @@ type Artist = {
   avatarUrl?: string | null;
   videoUrl?: string | null;
   backgroundUrl?: string | null;
+  instagramUrl?: string | null;
 };
 
 type Availability = Record<string, string[]>;
