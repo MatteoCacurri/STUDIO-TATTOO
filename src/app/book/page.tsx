@@ -581,13 +581,13 @@ export default function BookPage() {
                     </div>
                   )}
 
-                  <div className="mt-4 grid grid-cols-7 gap-2 text-center text-sm font-semibold text-base-content/70 uppercase">
+                  <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[0.65rem] font-semibold uppercase text-base-content/70 sm:gap-2 sm:text-sm">
                     {WEEKDAY_LABELS.map((label, idx) => (
                       <span key={`${label}-${idx}`}>{label}</span>
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-7 gap-2 text-sm">
+                  <div className="grid grid-cols-7 gap-1 text-xs sm:gap-2 sm:text-sm">
                     {calendarCells.map((cell, index) => {
                       if (!cell.key || !cell.isCurrentMonth) {
                         return <div key={index} className="h-10 rounded-xl border border-dashed border-white/10" />;
@@ -824,14 +824,14 @@ export default function BookPage() {
                   type="file"
                   name="bodyImage"
                   accept="image/*"
-                  className="file-input file-input-bordered bg-base-100/70"
+                  className="file-input file-input-bordered bg-base-100/70 w-full"
                   onChange={handleBodyImageChange}
                 />
                 <p className="mt-2 text-xs text-base-content/60">
                   Uno scatto nitido della parte del corpo ci aiuta a definire scala e adattamento del disegno.
                 </p>
                 {bodyPreview && (
-                  <div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-base-100/40 p-3">
+                  <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-base-100/40 p-3 sm:flex-row sm:items-center">
                     {/* eslint-disable-next-line @next/next/no-img-element -- preview locale di file */}
                     <img
                       src={bodyPreview}
@@ -852,7 +852,7 @@ export default function BookPage() {
                   name="referenceImages"
                   accept="image/*"
                   multiple
-                  className="file-input file-input-bordered bg-base-100/70"
+                  className="file-input file-input-bordered bg-base-100/70 w-full"
                   onChange={handleReferenceImagesChange}
                 />
                 <p className="mt-2 text-xs text-base-content/60">
@@ -893,17 +893,17 @@ export default function BookPage() {
                 </div>
               )}
 
-              <div className="md:col-span-2 flex flex-col gap-3 md:flex-row md:justify-end">
+              <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
                 <button
                   type="reset"
-                  className="btn btn-outline btn-secondary"
+                  className="btn btn-outline btn-secondary w-full sm:w-auto"
                 >
                   Reset
                 </button>
                 <button
                   type="submit"
                   disabled={sending}
-                  className="btn btn-primary btn-wide md:btn-lg shadow-lg shadow-primary/30"
+                  className="btn btn-primary btn-wide w-full sm:w-auto md:btn-lg shadow-lg shadow-primary/30"
                 >
                   {sending ? "Invio..." : "Invia la richiesta"}
                 </button>
