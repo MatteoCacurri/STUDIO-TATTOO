@@ -44,7 +44,7 @@ export default async function Home() {
   return (
     <div className="relative isolate overflow-hidden">
       <video
-        src="/img/HOME_BACKGROUND.mp4"
+        src="/img/SFONDO_HOME.mp4"
         autoPlay
         muted
         loop

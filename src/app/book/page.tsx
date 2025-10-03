@@ -24,14 +24,17 @@ type CalendarCell = {
 const WEEKDAY_LABELS = ["L", "M", "M", "G", "V", "S", "D"];
 
 const ARTIST_VIDEO_MAP: Record<number, string> = {
+  1: "/img/video_hero.mp4",
   2: "/img/video_hero.mp4",
-  3: "/img/video_hero.mp4",
 };
 
 const ARTIST_BACKGROUND_MAP: Record<number, string> = {
-  2: "/artists/cristiano.jpg",
-  3: "/artists/sdrains.jpg",
+  1: "/artists/cristiano_profile.jpg",
+  2: "/artists/sdrains.jpg",
 };
+
+const DEFAULT_BACKGROUND_IMAGE = "/img/sfondo_prenotazione.jpg";
+const PAGE_BACKGROUND_VIDEO = "/img/output.mp4";
 
 const SKIN_TONES = [
   {
@@ -257,7 +260,7 @@ export default function BookPage() {
         ? selectedArtist.backgroundUrl
         : ARTIST_BACKGROUND_MAP[selectedArtist.id] ?? null)
     : null;
-  const backgroundSrc = selectedArtistBackground ?? "/img/sfondo_prenotazione.jpg";
+  const backgroundSrc = selectedArtistBackground ?? DEFAULT_BACKGROUND_IMAGE;
 
   function handleArtistSelect(id: number) {
     setArtistId(id);
@@ -442,13 +445,22 @@ export default function BookPage() {
 
   return (
     <div className="relative isolate overflow-hidden">
+      <video
+        src={PAGE_BACKGROUND_VIDEO}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 -z-30 h-full w-full object-cover"
+      />
       <Image
         key={backgroundSrc}
         src={backgroundSrc}
         alt="Sfondo prenotazione"
         fill
         priority
-        className="absolute inset-0 -z-20 h-full w-full object-cover"
+        className="absolute inset-0 -z-20 h-full w-full object-cover opacity-30"
       />
       <div className="absolute inset-0 -z-10 bg-black/70" aria-hidden="true" />
 

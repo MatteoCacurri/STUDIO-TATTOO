@@ -95,7 +95,18 @@ const MAP_EMBED_URL =
 export default function ContactPage() {
   return (
     <div className="relative isolate overflow-hidden">
-      <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
+      <video
+        src="/img/SFONDO_CONTATTI.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 -z-10 bg-black/70" aria-hidden="true" />
+
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
         <header className="text-center md:text-left">
           <p className="text-xs uppercase tracking-[0.3em] text-primary sm:text-sm">Contattaci</p>
           <h1 className="mt-4 font-display text-3xl leading-tight text-base-content sm:text-4xl md:text-5xl">
