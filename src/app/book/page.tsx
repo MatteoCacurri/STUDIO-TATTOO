@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useSearchParams } from "next/navigation";
 
 type Artist = {
   id: number;
@@ -123,6 +124,7 @@ function formatFullDate(isoDate: string) {
 }
 
 export default function BookPage() {
+  const searchParams = useSearchParams();
   const [sending, setSending] = useState(false);
   const [ok, setOk] = useState<null | "ok" | "err">(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -152,6 +154,7 @@ export default function BookPage() {
     const t = new Date();
     return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
   }, []);
+  const lastArtistParamRef = useRef<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -261,6 +264,30 @@ export default function BookPage() {
         : ARTIST_BACKGROUND_MAP[selectedArtist.id] ?? null)
     : null;
   const backgroundSrc = selectedArtistBackground ?? DEFAULT_BACKGROUND_IMAGE;
+
+  useEffect(() => {
+    if (!artists.length) return;
+    const param = searchParams.get("artistId");
+
+    if (!param) {
+      lastArtistParamRef.current = null;
+      return;
+    }
+
+    if (lastArtistParamRef.current === param) return;
+
+    const parsed = Number(param);
+    if (Number.isNaN(parsed)) return;
+
+    if (artists.some((artist) => artist.id === parsed)) {
+      setArtistId(parsed);
+      lastArtistParamRef.current = param;
+      setSelectedDate(null);
+      setSelectedTime("");
+      setFormError(null);
+      setOk(null);
+    }
+  }, [artists, searchParams]);
 
   function handleArtistSelect(id: number) {
     setArtistId(id);

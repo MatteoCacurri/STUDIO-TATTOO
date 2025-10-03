@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import ArtistCard, { type Artist as ArtistType } from "@/components/ArtistCard";
 
@@ -106,14 +105,16 @@ export default async function Home() {
             </div>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] border border-white/10 shadow-2xl sm:rounded-[40px]">
-            <Image
-              src="/img/studio-workspace.jpg"
-              alt="Postazione di lavoro"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 45vw"
+            <video
+              src="/img/box_home.mp4"
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
             <div className="absolute bottom-6 left-6 rounded-2xl border border-white/20 bg-black/50 px-5 py-4 text-sm text-white/80 backdrop-blur">
               &ldquo;L&apos;ambiente fa la differenza: sterilità, atmosfera e comfort per sessioni piacevoli.&rdquo;
             </div>
