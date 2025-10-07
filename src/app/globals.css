@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --motion-duration-xs: 120ms;
+  --motion-duration-sm: 200ms;
+  --motion-duration-md: 320ms;
+  --motion-duration-lg: 480ms;
+  --motion-duration-xl: 680ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-distance-xs: 8px;
+  --motion-distance-sm: 14px;
+  --motion-distance-md: 24px;
+  --motion-opacity-hidden: 0;
+  --motion-opacity-visible: 1;
+  --motion-scale-sm: 1.015;
+  --motion-scale-md: 1.045;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-xs: 1ms;
+    --motion-duration-sm: 1ms;
+    --motion-duration-md: 1ms;
+    --motion-duration-lg: 1ms;
+    --motion-duration-xl: 1ms;
+  }
+
+  [data-motion],
+  [data-page-transition],
+  .motion-pressable,
+  .hover-float {
+    transition-duration: 1ms !important;
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  body::before {
+    display: none !important;
+  }
+}
+
 /* ---------- Font helper (next/font usa variabili CSS) ---------- */
 .font-display {
   font-family: var(--font-bebas), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -25,6 +66,140 @@
 
 /* ---------- Micro-animazioni ---------- */
 .hover-float {
-  transition: transform .25s ease, box-shadow .25s ease;
+  transition: transform var(--motion-duration-sm) var(--motion-ease-out), box-shadow var(--motion-duration-sm) var(--motion-ease-out);
 }
-.hover-float:hover { transform: translateY(-2px); box-shadow: 0 18px 60px -20px rgba(0,0,0,.55); }
+.hover-float:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 60px -20px rgba(0, 0, 0, .6);
+}
+.hover-float:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 60px -20px rgba(0, 0, 0, .6);
+}
+.hover-float:active {
+  transform: translateY(-1px);
+  transition-duration: var(--motion-duration-xs);
+}
+
+.motion-pressable {
+  transition:
+    transform var(--motion-duration-sm) var(--motion-ease-out),
+    box-shadow var(--motion-duration-sm) var(--motion-ease-out),
+    border-color var(--motion-duration-xs) var(--motion-ease-out),
+    background-color var(--motion-duration-xs) var(--motion-ease-out),
+    color var(--motion-duration-xs) var(--motion-ease-out);
+  will-change: transform, box-shadow;
+}
+
+.motion-pressable:hover {
+  transform: translateY(-3px);
+}
+
+.motion-pressable:active {
+  transform: translateY(-1px);
+  transition-duration: var(--motion-duration-xs);
+}
+
+[data-page-transition] {
+  transition:
+    opacity var(--motion-duration-lg) var(--motion-ease-out),
+    transform var(--motion-duration-lg) var(--motion-ease-out);
+  will-change: opacity, transform;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html[data-transition="leaving"] [data-page-transition] {
+  opacity: 0;
+  transform: translate3d(0, var(--motion-distance-sm), 0);
+}
+
+html[data-transition="entering"] [data-page-transition] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(225, 29, 72, .55), transparent 70%),
+    linear-gradient(135deg, rgba(0, 0, 0, .75), rgba(17, 24, 39, .85));
+  opacity: 0;
+  transform: translate3d(0, 6%, 0);
+  transform-origin: top center;
+  transition:
+    opacity var(--motion-duration-lg) var(--motion-ease-in-out),
+    transform var(--motion-duration-lg) var(--motion-ease-in-out);
+  z-index: 80;
+}
+
+html[data-transition="leaving"] body::before {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html[data-transition="entering"] body::before {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  animation: motion-page-enter var(--motion-duration-lg) var(--motion-ease-out) forwards;
+}
+
+@keyframes motion-page-enter {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8%, 0);
+  }
+}
+
+[data-motion] {
+  opacity: var(--motion-opacity-hidden);
+  transform: translate3d(0, var(--motion-distance-md), 0);
+  filter: blur(10px);
+  transition:
+    opacity var(--motion-duration-md) var(--motion-ease-out),
+    transform var(--motion-duration-md) var(--motion-ease-out),
+    filter var(--motion-duration-md) var(--motion-ease-out);
+  transition-delay: var(--motion-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+[data-motion="fade-in"] {
+  transform: translate3d(0, 0, 0);
+}
+
+[data-motion="fade-right"] {
+  transform: translate3d(calc(var(--motion-distance-md) * -1), 0, 0);
+}
+
+[data-motion="fade-down"] {
+  transform: translate3d(0, calc(var(--motion-distance-md) * -1), 0);
+}
+
+[data-motion="fade-left"] {
+  transform: translate3d(var(--motion-distance-md), 0, 0);
+}
+
+[data-motion="zoom-in"] {
+  transform: scale(0.94);
+}
+
+[data-motion-visible="true"] {
+  opacity: var(--motion-opacity-visible);
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+[data-motion="zoom-in"][data-motion-visible="true"] {
+  transform: scale(1);
+}
+
+[data-motion][data-motion-pop="true"] {
+  transition-duration: var(--motion-duration-sm);
+}

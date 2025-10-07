@@ -165,9 +165,9 @@ export default function ArtistShowcase({ artist, works }: Props) {
   const fadingOpacity = isFading ? "opacity-0" : "opacity-100";
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-base-100/40 p-5 backdrop-blur">
-      <div className="grid items-center gap-6 md:grid-cols-[1.1fr,0.9fr]">
-        <div className="relative h-[260px] overflow-hidden rounded-[32px] border border-white/10 shadow-lg sm:h-[320px]">
+    <section className="rounded-3xl border border-white/10 bg-base-100/40 p-5 backdrop-blur" data-motion="fade-up">
+      <div className="grid items-center gap-6 md:grid-cols-[1.1fr,0.9fr]" data-motion-stagger="120">
+        <div className="relative h-[260px] overflow-hidden rounded-[32px] border border-white/10 shadow-lg sm:h-[320px]" data-motion="fade-right">
           {currentSlide ? (
             <div className={`relative h-full w-full transition-opacity duration-300 ease-out ${fadingOpacity}`} key={currentSlide.id}>
               <WorkMedia item={currentSlide} priority />
@@ -219,8 +219,8 @@ export default function ArtistShowcase({ artist, works }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 text-center md:text-left">
-          <div className="flex flex-col items-center gap-3 md:flex-row md:items-start">
+        <div className="flex flex-col gap-4 text-center md:text-left" data-motion="fade-up">
+          <div className="flex flex-col items-center gap-3 md:flex-row md:items-start" data-motion-stagger="80">
             <div className="relative h-20 w-20 overflow-hidden rounded-3xl border border-white/20 shadow-lg">
               <Image
                 src={fallbackImage}
@@ -240,7 +240,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
               <a
                 key={social.name}
                 href={social.href}
-                className="btn btn-sm btn-outline border-white/30 text-base-content hover:border-primary"
+                className="btn btn-sm btn-outline border-white/30 text-base-content hover:border-primary motion-pressable"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -254,12 +254,12 @@ export default function ArtistShowcase({ artist, works }: Props) {
           <div className="flex flex-wrap justify-center gap-3 md:justify-start">
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary motion-pressable"
               onClick={() => setModalOpen(true)}
             >
               Guarda il portfolio
             </button>
-            <Link href={`/book?artistId=${artist.id}`} className="btn btn-secondary">
+            <Link href={`/book?artistId=${artist.id}`} className="btn btn-secondary motion-pressable">
               Prenota con {artist.name}
             </Link>
           </div>
@@ -273,7 +273,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
               <div className="sticky top-4 z-20 flex justify-end px-6">
                 <button
                   type="button"
-                  className="rounded-full bg-black/50 p-2 text-white shadow-md transition hover:bg-primary"
+                  className="rounded-full bg-black/50 p-2 text-white shadow-md transition hover:bg-primary motion-pressable"
                   onClick={() => setModalOpen(false)}
                   aria-label="Chiudi"
                 >
@@ -305,7 +305,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
                       <button
                         type="button"
                         onClick={prev}
-                        className="rounded-full bg-black/35 p-2 text-2xl text-white shadow-lg transition hover:bg-primary/70"
+                        className="rounded-full bg-black/35 p-2 text-2xl text-white shadow-lg transition hover:bg-primary/70 motion-pressable"
                         aria-label="Opera precedente"
                       >
                         ‹
@@ -313,7 +313,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
                       <button
                         type="button"
                         onClick={next}
-                        className="rounded-full bg-black/35 p-2 text-2xl text-white shadow-lg transition hover:bg-primary/70"
+                        className="rounded-full bg-black/35 p-2 text-2xl text-white shadow-lg transition hover:bg-primary/70 motion-pressable"
                         aria-label="Opera successiva"
                       >
                         ›
@@ -335,7 +335,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
                           key={item.id}
                           type="button"
                           onClick={() => changeTo(i)}
-                          className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm transition hover:border-primary/60 ${
+                          className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm transition hover:border-primary/60 motion-pressable ${
                             i === index ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-base-content"
                           }`}
                         >
@@ -363,7 +363,7 @@ export default function ArtistShowcase({ artist, works }: Props) {
                     ))}
                   </div>
 
-                  <Link href={`/book?artistId=${artist.id}`} className="btn btn-primary btn-lg shadow-lg shadow-primary/30">
+                  <Link href={`/book?artistId=${artist.id}`} className="btn btn-primary btn-lg shadow-lg shadow-primary/30 motion-pressable">
                     Prenota una sessione con {artist.name}
                   </Link>
                 </div>

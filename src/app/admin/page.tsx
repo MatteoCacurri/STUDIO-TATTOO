@@ -132,12 +132,12 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-10 md:py-14">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Gestione prenotazioni</h1>
-        <p className="text-base-content/60">Filtra, aggiorna status, cancella.</p>
+      <div className="mb-6" data-motion-stagger="80">
+        <h1 className="text-2xl font-bold" data-motion="fade-up">Gestione prenotazioni</h1>
+        <p className="text-base-content/60" data-motion="fade-up">Filtra, aggiorna status, cancella.</p>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-4" data-motion="fade-up">
         <input
           className="input input-bordered bg-base-100/70"
           placeholder="Cerca (nome, email, tatuaggio)"
@@ -170,7 +170,7 @@ export default function AdminPage() {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border">
+      <div className="overflow-x-auto rounded-2xl border" data-motion="fade-up">
         <table className="table">
           <thead>
             <tr>
@@ -288,7 +288,7 @@ export default function AdminPage() {
                 <td>{badge(b.status)}</td>
                 <td>
                   <div className="flex justify-end gap-2">
-                    <button className="btn btn-sm" onClick={() => openDeleteModal(b)}>
+                    <button className="btn btn-sm motion-pressable" onClick={() => openDeleteModal(b)}>
                       Cancella
                     </button>
                   </div>
@@ -315,15 +315,15 @@ export default function AdminPage() {
           </p>
           <div className="modal-action">
             <form method="dialog" className="flex gap-2">
-              <button className="btn" onClick={closeDeleteModal}>Annulla</button>
-              <button className="btn btn-error" onClick={confirmDelete}>Cancella</button>
+              <button className="btn motion-pressable" onClick={closeDeleteModal}>Annulla</button>
+              <button className="btn btn-error motion-pressable" onClick={confirmDelete}>Cancella</button>
             </form>
           </div>
         </div>
       </dialog>
 
       {toast && (
-        <div className="toast toast-end">
+        <div className="toast toast-end" data-motion="fade-up">
           <div className="alert alert-info">
             <span>{toast}</span>
           </div>

@@ -107,19 +107,19 @@ export default function ContactPage() {
       <div className="absolute inset-0 -z-10 bg-black/70" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
-        <header className="text-center md:text-left">
-          <p className="text-xs uppercase tracking-[0.3em] text-primary sm:text-sm">Contattaci</p>
-          <h1 className="mt-4 font-display text-3xl leading-tight text-base-content sm:text-4xl md:text-5xl">
+        <header className="text-center md:text-left" data-motion-stagger="100">
+          <p className="text-xs uppercase tracking-[0.3em] text-primary sm:text-sm" data-motion="fade-up">Contattaci</p>
+          <h1 className="mt-4 font-display text-3xl leading-tight text-base-content sm:text-4xl md:text-5xl" data-motion="fade-up">
             Passa in studio, scrivici o prenota una consulenza.
           </h1>
-          <p className="mt-4 text-base text-base-content/70 sm:text-lg md:max-w-2xl">
+          <p className="mt-4 text-base text-base-content/70 sm:text-lg md:max-w-2xl" data-motion="fade-up">
             Siamo nel cuore della città: fissiamo appuntamenti su misura e rispondiamo alle tue domande
             ogni giorno. Qui trovi tutte le informazioni utili per raggiungerci e prepararti al meglio.
           </p>
         </header>
 
-        <section className="mt-12 grid gap-10 lg:grid-cols-[1.2fr,0.8fr] lg:items-stretch">
-          <div className="relative overflow-hidden rounded-[32px] border border-white/10 shadow-xl">
+        <section className="mt-12 grid gap-10 lg:grid-cols-[1.2fr,0.8fr] lg:items-stretch" data-motion-stagger="120">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 shadow-xl" data-motion="fade-up">
             <iframe
               title="Mappa Studio"
               src={MAP_EMBED_URL}
@@ -135,36 +135,37 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="card glass border border-white/10">
-            <div className="card-body gap-6">
-              <div>
+          <div className="card glass border border-white/10" data-motion="fade-up">
+            <div className="card-body gap-6" data-motion-stagger="80">
+              <div data-motion="fade-up">
                 <p className="text-sm uppercase tracking-[0.25em] text-primary">Lo studio</p>
                 <h2 className="mt-2 text-2xl font-semibold">C4os Tattoo Studio</h2>
                 <p className="mt-2 text-sm text-base-content/70">
                   Via Torino 1, Milano (MI) &middot; Piano terra interno cortile
                 </p>
               </div>
-              <div className="grid gap-3 text-sm">
+              <div className="grid gap-3 text-sm" data-motion-stagger="70">
                 {HOURS.map((slot) => (
                   <div
                     key={slot.day}
                     className="flex items-center justify-between rounded-2xl bg-base-100/60 px-4 py-3 text-base-content"
+                    data-motion="fade-up"
                   >
                     <span className="font-medium">{slot.day}</span>
                     <span className="text-base-content/70">{slot.hours}</span>
                   </div>
                 ))}
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3" data-motion="fade-up">
                 <a
                   href="https://maps.google.com/?q=Via+Torino+1,+Milano"
                   target="_blank"
                   rel="noreferrer"
-                  className="btn btn-outline hover-float"
+                  className="btn btn-outline motion-pressable"
                 >
                   Apri su Google Maps
                 </a>
-                <Link href="/book" className="btn btn-primary hover-float">
+                <Link href="/book" className="btn btn-primary motion-pressable">
                   Prenota una sessione
                 </Link>
               </div>
@@ -172,16 +173,17 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section className="mt-16 rounded-[32px] border border-white/10 bg-base-100/50 p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold text-base-content sm:text-3xl">Domande frequenti</h2>
-          <p className="mt-2 text-sm text-base-content/70">
+        <section className="mt-16 rounded-[32px] border border-white/10 bg-base-100/50 p-6 sm:p-8" data-motion="fade-up">
+          <h2 className="text-2xl font-semibold text-base-content sm:text-3xl" data-motion="fade-up">Domande frequenti</h2>
+          <p className="mt-2 text-sm text-base-content/70" data-motion="fade-up">
             Tutto quello che c&apos;è da sapere prima della sessione. Se non trovi la risposta, scrivici pure.
           </p>
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4" data-motion-stagger="70">
             {FAQS.map((faq) => (
               <details
                 key={faq.question}
                 className="collapse collapse-arrow rounded-2xl border border-white/10 bg-base-100/60"
+                data-motion="fade-up"
               >
                 <summary className="collapse-title text-base font-semibold text-base-content">
                   {faq.question}
@@ -194,15 +196,15 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section className="mt-16 card glass border border-white/10">
-          <div className="card-body gap-6 md:flex md:items-center md:justify-between md:gap-10">
-            <div>
+        <section className="mt-16 card glass border border-white/10" data-motion="fade-up">
+          <div className="card-body gap-6 md:flex md:items-center md:justify-between md:gap-10" data-motion-stagger="90">
+            <div data-motion="fade-up">
               <h2 className="text-2xl font-semibold sm:text-3xl">Resta in contatto con noi</h2>
               <p className="mt-2 text-sm text-base-content/70">
                 Anteprime dei nuovi progetti, apertura agenda e dietro le quinte dal laboratorio.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3" data-motion-stagger="80">
               {SOCIALS.map((social) => (
                 <a
                   key={social.name}
@@ -210,7 +212,8 @@ export default function ContactPage() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={social.label}
-                  className="group flex items-center gap-2 rounded-full border border-white/10 bg-base-100/70 px-4 py-2 text-sm font-medium text-base-content transition-transform duration-200 hover:-translate-y-1 hover:border-primary hover:text-primary"
+                  className="group flex items-center gap-2 rounded-full border border-white/10 bg-base-100/70 px-4 py-2 text-sm font-medium text-base-content motion-pressable transition-colors duration-200 hover:border-primary hover:text-primary"
+                  data-motion="fade-up"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-primary/40 text-primary-content transition-all duration-200 group-hover:from-primary group-hover:to-secondary">
                     {social.icon}

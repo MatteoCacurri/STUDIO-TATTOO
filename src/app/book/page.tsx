@@ -423,7 +423,7 @@ export default function BookPage() {
   }
 
   const artistCards = (
-    <div className="mt-8 grid gap-6 sm:grid-cols-2">
+    <div className="mt-8 grid gap-6 sm:grid-cols-2" data-motion-stagger="120">
       {artists.map((artist) => {
         const isActive = artistId === artist.id;
         const avatar = artist.avatarUrl && artist.avatarUrl.trim() ? artist.avatarUrl : "/img/artist-placeholder.svg";
@@ -432,10 +432,11 @@ export default function BookPage() {
             key={artist.id}
             type="button"
             onClick={() => handleArtistSelect(artist.id)}
-            className={`card glass overflow-hidden border transition-all hover:border-primary/40 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+            className={`card glass overflow-hidden border transition-all hover:border-primary/40 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-pressable ${
               isActive ? "border-primary shadow-xl" : "border-transparent"
             }`}
             aria-pressed={isActive}
+            data-motion="fade-up"
           >
             <div className="relative aspect-[3/4] overflow-hidden">
               <Image
@@ -482,25 +483,25 @@ export default function BookPage() {
       <div className="absolute inset-0 -z-10 bg-black/70" aria-hidden="true" />
 
       <main className="relative z-10 container mx-auto max-w-4xl px-4 py-12">
-      <header className="text-center">
-        <h1 className="text-3xl md:text-4xl font-bold">Prenota il tuo tatuaggio</h1>
-        <p className="mt-3 text-base-content/70">
-          Scegli l&apos;artista, seleziona la data ideale e raccontaci il tatuaggio che hai in mente.
-        </p>
-      </header>
+        <header className="text-center" data-motion-stagger="100">
+          <h1 className="text-3xl font-bold md:text-4xl" data-motion="fade-up">Prenota il tuo tatuaggio</h1>
+          <p className="mt-3 text-base-content/70" data-motion="fade-up">
+            Scegli l&apos;artista, seleziona la data ideale e raccontaci il tatuaggio che hai in mente.
+          </p>
+        </header>
 
       {loadingArtists && (
-        <div className="mt-10 text-center text-base-content/60">Carichiamo gli artisti...</div>
+        <div className="mt-10 text-center text-base-content/60" data-motion="fade-up">Carichiamo gli artisti...</div>
       )}
       {artistError && (
-        <div className="alert alert-error mt-10">
+        <div className="alert alert-error mt-10" data-motion="fade-up">
           <span>{artistError}</span>
         </div>
       )}
 
       {!loadingArtists && !artistError && artists.length > 0 && !artistId && (
-        <section>
-          <h2 className="mt-10 text-lg font-semibold uppercase tracking-wide text-base-content/60">
+        <section data-motion-stagger="100">
+          <h2 className="mt-10 text-lg font-semibold uppercase tracking-wide text-base-content/60" data-motion="fade-up">
             1 · Scegli il tuo tatuatore
           </h2>
           {artistCards}
@@ -508,17 +509,17 @@ export default function BookPage() {
       )}
 
       {!loadingArtists && !artistError && artists.length === 0 && (
-        <section className="mt-10 rounded-3xl border border-dashed border-white/15 bg-base-100/40 p-8 text-center">
-          <h2 className="text-xl font-semibold text-base-content">Nessun artista disponibile al momento</h2>
-          <p className="mt-3 text-sm text-base-content/70">
+        <section className="mt-10 rounded-3xl border border-dashed border-white/15 bg-base-100/40 p-8 text-center" data-motion="fade-up">
+          <h2 className="text-xl font-semibold text-base-content" data-motion="fade-up">Nessun artista disponibile al momento</h2>
+          <p className="mt-3 text-sm text-base-content/70" data-motion="fade-up">
             Aggiungi un artista dal pannello admin per riattivare le prenotazioni oppure riprova più tardi.
           </p>
         </section>
       )}
 
       {artistId && selectedArtist && (
-        <section className="mt-12 space-y-8">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl">
+        <section className="mt-12 space-y-8" data-motion-stagger="120">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl" data-motion="fade-up">
             {selectedArtistVideo ? (
               <video
                 key={selectedArtistVideo}
@@ -558,7 +559,7 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => setArtistId(null)}
-                className="btn btn-outline btn-sm md:btn-md border-white/60 text-white hover:border-white"
+                className="btn btn-outline btn-sm border-white/60 text-white hover:border-white motion-pressable md:btn-md"
               >
                 Cambia artista
               </button>
@@ -566,16 +567,16 @@ export default function BookPage() {
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold uppercase tracking-wide text-base-content/60">
+            <h2 className="text-lg font-semibold uppercase tracking-wide text-base-content/60" data-motion="fade-up">
               2 · Scegli data e orario
             </h2>
-            <div className="mt-4 grid gap-6 md:grid-cols-[2fr,1fr]">
-              <div className="card glass border border-white/10">
-                <div className="card-body">
-                  <div className="flex items-center justify-between">
+            <div className="mt-4 grid gap-6 md:grid-cols-[2fr,1fr]" data-motion-stagger="100">
+              <div className="card glass border border-white/10" data-motion="fade-up">
+                <div className="card-body" data-motion-stagger="80">
+                  <div className="flex items-center justify-between" data-motion="fade-up">
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm border-white/30 text-base-content"
+                      className="btn btn-outline btn-sm border-white/30 text-base-content motion-pressable"
                       onClick={() => goToMonth(-1)}
                     >
                       ‹ Mese prec.
@@ -585,7 +586,7 @@ export default function BookPage() {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm border-white/30 text-base-content"
+                      className="btn btn-outline btn-sm border-white/30 text-base-content motion-pressable"
                       onClick={() => goToMonth(1)}
                     >
                       Mese succ. ›
@@ -593,18 +594,18 @@ export default function BookPage() {
                   </div>
 
                   {availabilityError && (
-                    <div className="alert alert-error mt-4">
+                    <div className="alert alert-error mt-4" data-motion="fade-up">
                       <span>{availabilityError}</span>
                     </div>
                   )}
 
-                  <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[0.65rem] font-semibold uppercase text-base-content/70 sm:gap-2 sm:text-sm">
+                  <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[0.65rem] font-semibold uppercase text-base-content/70 sm:gap-2 sm:text-sm" data-motion="fade-up">
                     {WEEKDAY_LABELS.map((label, idx) => (
                       <span key={`${label}-${idx}`}>{label}</span>
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-7 gap-1 text-xs sm:gap-2 sm:text-sm">
+                  <div className="grid grid-cols-7 gap-1 text-xs sm:gap-2 sm:text-sm" data-motion-stagger="40">
                     {calendarCells.map((cell, index) => {
                       if (!cell.key || !cell.isCurrentMonth) {
                         return <div key={index} className="h-10 rounded-xl border border-dashed border-white/10" />;
@@ -620,13 +621,14 @@ export default function BookPage() {
                           type="button"
                           disabled={!isAvailable || loadingAvailability}
                           onClick={() => setSelectedDate(cell.key)}
-                          className={`h-10 rounded-xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                          className={`h-10 rounded-xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-pressable ${
                             isSelected
                               ? "border-primary bg-primary/20 text-primary-foreground shadow-lg"
                               : isAvailable
                               ? "border-white/30 bg-white/5 text-base-content hover:border-primary/50 hover:bg-primary/10"
                               : "border-white/10 bg-white/0 text-base-content/40"
                           } ${isToday && !isSelected ? "ring-1 ring-white/40" : ""}`}
+                          data-motion="fade-up"
                         >
                           {cell.label}
                         </button>
@@ -635,25 +637,25 @@ export default function BookPage() {
                   </div>
 
                   {loadingAvailability && (
-                    <p className="mt-4 text-sm text-base-content/60">Aggiorno la disponibilità...</p>
+                    <p className="mt-4 text-sm text-base-content/60" data-motion="fade-up">Aggiorno la disponibilità...</p>
                   )}
                   {!loadingAvailability && availableDateKeys.length === 0 && (
-                    <p className="mt-4 text-sm text-base-content/60">
+                    <p className="mt-4 text-sm text-base-content/60" data-motion="fade-up">
                       Nessun giorno disponibile in questo mese. Prova a cambiare mese.
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="card glass border border-white/10">
-                <div className="card-body space-y-4">
-                  <div>
+              <div className="card glass border border-white/10" data-motion="fade-up">
+                <div className="card-body space-y-4" data-motion-stagger="80">
+                  <div data-motion="fade-up">
                     <p className="text-sm uppercase tracking-wide text-base-content/60">Data selezionata</p>
                     <p className="text-lg font-semibold">
                       {selectedDate ? formatFullDate(selectedDate) : "Nessuna data"}
                     </p>
                   </div>
-                  <div className="form-control">
+                  <div className="form-control" data-motion="fade-up">
                     <label className="label">
                       <span className="label-text">Orario preferito</span>
                     </label>
@@ -675,9 +677,9 @@ export default function BookPage() {
             </div>
           </div>
 
-          <form ref={formRef} onSubmit={onSubmit} className="card glass border border-white/10">
-            <div className="card-body grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="form-control md:col-span-2">
+          <form ref={formRef} onSubmit={onSubmit} className="card glass border border-white/10" data-motion="fade-up">
+            <div className="card-body grid grid-cols-1 gap-4 md:grid-cols-2" data-motion-stagger="80">
+              <div className="form-control md:col-span-2" data-motion="fade-up">
                 <label className="label">
                   <span className="label-text">Nome e cognome</span>
                 </label>
@@ -720,24 +722,25 @@ export default function BookPage() {
                 </label>
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-2" data-motion="fade-up">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium uppercase tracking-wide text-base-content/70">
                     Tono della pelle
                   </span>
                   <span className="text-xs text-primary">Aiutaci a valutare resa e palette</span>
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2" data-motion-stagger="90">
                   {SKIN_TONES.map((tone) => {
                     const isActive = skinTone === tone.value;
                     return (
                       <label
                         key={tone.value}
-                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${
+                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition motion-pressable ${
                           isActive
                             ? "border-primary/80 bg-primary/10 shadow-lg shadow-primary/20"
                             : "border-white/15 bg-base-100/40 hover:border-primary/40 hover:bg-primary/5"
                         }`}
+                        data-motion="fade-up"
                       >
                         <input
                           className="sr-only"
@@ -769,24 +772,25 @@ export default function BookPage() {
                 </div>
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-2" data-motion="fade-up">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium uppercase tracking-wide text-base-content/70">
                     Palette preferita
                   </span>
                   <span className="text-xs text-base-content/60">Così prepariamo proposte coerenti</span>
                 </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2" data-motion-stagger="90">
                   {PALETTE_OPTIONS.map((option) => {
                     const selected = palette === option.value;
                     return (
                       <label
                         key={option.value}
-                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${
+                        className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition motion-pressable ${
                           selected
                             ? "border-secondary/80 bg-secondary/10 shadow-lg shadow-secondary/20"
                             : "border-white/15 bg-base-100/40 hover:border-secondary/40 hover:bg-secondary/5"
                         }`}
+                        data-motion="fade-up"
                       >
                         <input
                           className="sr-only"
@@ -816,7 +820,7 @@ export default function BookPage() {
                 </div>
               </div>
 
-              <div className="form-control md:col-span-2">
+              <div className="form-control md:col-span-2" data-motion="fade-up">
                 <label className="label">
                   <span className="label-text">Descrizione del tatuaggio</span>
                 </label>
@@ -833,7 +837,7 @@ export default function BookPage() {
                 </label>
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-2" data-motion="fade-up">
                 <label className="label">
                   <span className="label-text">Foto della zona da tatuare</span>
                 </label>
@@ -903,17 +907,17 @@ export default function BookPage() {
               </div>
 
               {formError && (
-                <div className="md:col-span-2">
+                <div className="md:col-span-2" data-motion="fade-up">
                   <div className="alert alert-error">
                     <span>{formError}</span>
                   </div>
                 </div>
               )}
 
-              <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+              <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end" data-motion="fade-up">
                 <button
                   type="button"
-                  className="btn btn-outline btn-secondary w-full sm:w-auto"
+                  className="btn btn-outline btn-secondary w-full motion-pressable sm:w-auto"
                   onClick={() => {
                     formRef.current?.reset();
                     handleReset(true);
@@ -924,7 +928,7 @@ export default function BookPage() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="btn btn-primary btn-wide w-full sm:w-auto md:btn-lg shadow-lg shadow-primary/30"
+                  className="btn btn-primary btn-wide w-full shadow-lg shadow-primary/30 motion-pressable sm:w-auto md:btn-lg"
                 >
                   {sending ? "Invio..." : "Invia la richiesta"}
                 </button>
@@ -933,12 +937,12 @@ export default function BookPage() {
           </form>
 
           {ok === "ok" && (
-            <div className="alert alert-success">
+            <div className="alert alert-success" data-motion="fade-up">
               <span>La tua richiesta è stata inviata, ti risponderemo al più presto.</span>
             </div>
           )}
           {ok === "err" && (
-            <div className="alert alert-error">
+            <div className="alert alert-error" data-motion="fade-up">
               <span>Si è verificato un errore. Riprova.</span>
             </div>
           )}
