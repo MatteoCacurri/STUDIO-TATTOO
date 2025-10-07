@@ -125,6 +125,7 @@ function formatFullDate(isoDate: string) {
 
 export default function BookPage() {
   const searchParams = useSearchParams();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [sending, setSending] = useState(false);
   const [ok, setOk] = useState<null | "ok" | "err">(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -322,13 +323,13 @@ export default function BookPage() {
     });
   }
 
-  function handleReset() {
+  function handleReset(clearOk: boolean) {
     setSelectedDate(null);
     setSelectedTime("");
     setSkinTone(DEFAULT_SKIN_TONE);
     setPalette(DEFAULT_PALETTE);
     setFormError(null);
-    setOk(null);
+    if (clearOk) setOk(null);
     setBodyPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
@@ -411,18 +412,7 @@ export default function BookPage() {
 
       setOk("ok");
       form.reset();
-      setSkinTone(DEFAULT_SKIN_TONE);
-      setPalette(DEFAULT_PALETTE);
-      setSelectedDate(null);
-      setSelectedTime("");
-      setBodyPreview((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      setReferencePreviews((prev) => {
-        prev.forEach((entry) => URL.revokeObjectURL(entry.url));
-        return [];
-      });
+      handleReset(false);
     } catch (err) {
       console.error(err);
       setOk("err");
@@ -685,7 +675,7 @@ export default function BookPage() {
             </div>
           </div>
 
-          <form onSubmit={onSubmit} onReset={handleReset} className="card glass border border-white/10">
+          <form ref={formRef} onSubmit={onSubmit} className="card glass border border-white/10">
             <div className="card-body grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="form-control md:col-span-2">
                 <label className="label">
@@ -922,8 +912,12 @@ export default function BookPage() {
 
               <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
                 <button
-                  type="reset"
+                  type="button"
                   className="btn btn-outline btn-secondary w-full sm:w-auto"
+                  onClick={() => {
+                    formRef.current?.reset();
+                    handleReset(true);
+                  }}
                 >
                   Reset
                 </button>
@@ -940,7 +934,7 @@ export default function BookPage() {
 
           {ok === "ok" && (
             <div className="alert alert-success">
-              <span>Richiesta inviata! Ti ricontatteremo a breve.</span>
+              <span>La tua richiesta è stata inviata, ti risponderemo al più presto.</span>
             </div>
           )}
           {ok === "err" && (
